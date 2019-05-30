@@ -7,6 +7,7 @@
 </template>
 
 <script>
+import {loadLanguage} from '@/i18n-setup.js';
 export default {
   name: 'LanguageSwitcher',
   data() {
@@ -25,14 +26,24 @@ export default {
   },
   methods: {
     changeLang(lang) {
-      this.$i18n.locale = lang.code;
       let otherLanguages = this.languages.filter((language) => language.code !== lang.code);
       otherLanguages.forEach(language => language.active = false);
       lang.active = true;
+      loadLanguage(lang.code);
       this.$store.commit('language', lang.code);
     },
+    setDefaultLang(lang) {
+      let currentLanguage = this.languages.filter((language) => language.code === lang);
+      let otherLanguages = this.languages.filter((language) => language.code !== lang);
+      currentLanguage[0].active = true;
+      otherLanguages.forEach(language => language.active = false);
+      loadLanguage(lang);
+      this.$store.commit('language', lang);
+    }
   },
   mounted() {
+    let defaultLang = (localStorage['lang'] ? localStorage['lang'] : process.env.VUE_APP_LANG);
+    this.setDefaultLang(defaultLang);
   },
 };
 </script>
@@ -49,6 +60,7 @@ export default {
       }
       &.active {
         font-weight: bold;
+        text-decoration: underline;
       }
     }
   }
